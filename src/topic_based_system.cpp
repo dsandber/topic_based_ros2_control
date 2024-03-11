@@ -145,7 +145,7 @@ CallbackReturn TopicBasedSystem::on_init(const hardware_interface::HardwareInfo&
   }
 
   topic_based_joint_commands_publisher_ = node_->create_publisher<sensor_msgs::msg::JointState>(
-      get_hardware_parameter("joint_commands_topic", "/robot_joint_commands"), rclcpp::QoS(1));
+      get_hardware_parameter("joint_commands_topic", "/robot_joint_commands"), rclcpp::QoS(1000));
   topic_based_joint_states_subscriber_ = node_->create_subscription<sensor_msgs::msg::JointState>(
       get_hardware_parameter("joint_states_topic", "/robot_joint_states"), rclcpp::SensorDataQoS(),
       [this](const sensor_msgs::msg::JointState::SharedPtr joint_state) { latest_joint_state_ = *joint_state; });
@@ -272,9 +272,17 @@ hardware_interface::return_type TopicBasedSystem::write(const rclcpp::Time& /*ti
       [](const auto d1, const auto d2) { return std::abs(d1) + std::abs(d2); }, std::minus<double>{});
   if (diff <= trigger_joint_command_threshold_)
   {
+//    RCLCPP_WARN(node_->get_logger(), "@(*&@*&(@*&#(@*&#");
     return hardware_interface::return_type::OK;
   }
 
+//  static long int last_num = 0;
+//
+//  RCLCPP_WARN(node_->get_logger(), "%ld", time.nanoseconds());
+//  if (last_num + 1'000'000 != time.nanoseconds()) {
+//        RCLCPP_WARN(node_->get_logger(), "**** SKIPPED ****");
+//  }
+//  last_num = time.nanoseconds();
   sensor_msgs::msg::JointState joint_state;
   for (std::size_t i = 0; i < info_.joints.size(); ++i)
   {
@@ -286,6 +294,7 @@ hardware_interface::return_type TopicBasedSystem::write(const rclcpp::Time& /*ti
       if (interface.name == hardware_interface::HW_IF_POSITION)
       {
         joint_state.position.push_back(joint_commands_[POSITION_INTERFACE_INDEX][i]);
+//        joint_states_[POSITION_INTERFACE_INDEX][i] = joint_commands_[POSITION_INTERFACE_INDEX][i];
       }
       else if (interface.name == hardware_interface::HW_IF_VELOCITY)
       {
