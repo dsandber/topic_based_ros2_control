@@ -145,7 +145,7 @@ CallbackReturn TopicBasedSystem::on_init(const hardware_interface::HardwareInfo&
   }
 
   topic_based_joint_commands_publisher_ = node_->create_publisher<sensor_msgs::msg::JointState>(
-      get_hardware_parameter("joint_commands_topic", "/robot_joint_commands"), rclcpp::QoS(1000));
+      get_hardware_parameter("joint_commands_topic", "/robot_joint_commands"), rclcpp::QoS(5000));
   topic_based_joint_states_subscriber_ = node_->create_subscription<sensor_msgs::msg::JointState>(
       get_hardware_parameter("joint_states_topic", "/robot_joint_states"), rclcpp::SensorDataQoS(),
       [this](const sensor_msgs::msg::JointState::SharedPtr joint_state) { latest_joint_state_ = *joint_state; });
